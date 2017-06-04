@@ -2,7 +2,7 @@ package javase01.t06;
 
 /**
  * The Record class stores one text record.
- *
+ * This class is not threadsafe.
  * Created by Aleksandr Shevkunenko on 04.06.2017.
  */
 public class Record {
@@ -21,5 +21,11 @@ public class Record {
     /** Sets a new value for the text string inside the record object. */
     public void setText(String text) {
         this.text = text;
+    }
+
+    /** Returns the string representation of the record */
+    @Override
+    public String toString() {
+        return text;
     }
 }
