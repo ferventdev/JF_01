@@ -8,35 +8,85 @@ import java.util.Arrays;
  * Created by Aleksandr Shevkunenko on 04.06.2017.
  */
 public class Notepad {
-    private static final int INITIAL_CAPACITY = 2;
+    private static final int DEFAULT_CAPACITY = 2;
     private Record[] records;
     private int numberOfRecords = 0;
 
+    /** Constructs the Notepad object with the default storage capacity. */
     public Notepad() {
-        this(INITIAL_CAPACITY);
+        this(DEFAULT_CAPACITY);
     }
 
+    /** Constructs the Notepad object with the specified storage capacity (if it exceeds the default capacity). */
     public Notepad(int capacity) {
-        records = new Record[capacity];
+        records = capacity > DEFAULT_CAPACITY ? new Record[capacity] : new Record[DEFAULT_CAPACITY];
     }
 
+    /** Prints all records in the notepad to the standard output. */
     public void watchAllRecords() {
         System.out.println("All records in the notepad:");
         for (Record rec : records) System.out.println(rec);
     }
 
+    /** Returns the current capacity of the notepad
+     * (is equal to the backing array length, currently used to store the records). */
+    public int currentCapacity() {
+        return records.length;
+    }
+
+    /** Returns the number of records in the notepad */
+    public int getNumberOfRecords() {
+        return numberOfRecords;
+    }
+
+    /** Adds a record to the notepad.
+     * If the current record storage (backing array) is full, the storage is auto expanded so it may store more records.
+     * @param rec a record to be added
+     * @return false if a record to be added is null, otherwise true */
     public boolean addRecord(Record rec) {
         if (rec == null) return false;
-        if (arrayIsFull()) records = Arrays.copyOf(records, records.length * 2);
+        if (storageIsFull()) records = Arrays.copyOf(records, records.length * 2);
         records[numberOfRecords] = rec;
         numberOfRecords++;
         return true;
     }
 
-//    public Record removeRecord() {
-//
-//    }
+    /** Removes and returns the record at the specified index.
+     * @param recordIndex index of the record to be removed
+     * @return the removed record
+     * @throws IndexOutOfBoundsException if recordIndex parameter exceeds the number of records in the notepad */
+    public Record removeRecord(int recordIndex) {
+        if (recordIndex >= numberOfRecords)
+            throw new IndexOutOfBoundsException("Record index cannot exceed the number of records.");
+        Record removedRecord = records[recordIndex];
+        numberOfRecords--;
+        if (numberOfRecords <= records.length / 4) {    // we'll reallocate data to a shorter array
+            Record[] destination = new Record[numberOfRecords];
+            System.arraycopy(records, 0, destination, 0, recordIndex);
+            System.arraycopy(records, recordIndex + 1, destination, recordIndex, numberOfRecords - recordIndex - 1);
+            records = destination;
+        } else if (recordIndex == numberOfRecords) {    // no reallocation; the last record was removed
+            records[numberOfRecords] = null;
+        }
+        else {
+            // no reallocation, but we need to "put together" two parts of our array because of the removed record "in the middle"
+            System.arraycopy(records, recordIndex + 1, records, recordIndex, numberOfRecords - recordIndex - 1);
+            records[numberOfRecords] = null;
+        }
+        return removedRecord;
+    }
 
+    /** Removes and returns the last record in the notepad. */
+    public Record removeRecord() {
+        return removeRecord(numberOfRecords - 1);
+    }
+
+    /** Replaces the record at the specified record index with a new record.
+     * @param recordIndex index of the record to be edited
+     * @param newRecord new record that is to replace the current record
+     * @return the record before it was edited
+     * @throws IndexOutOfBoundsException if recordIndex parameter exceeds the number of records in the notepad
+     * @throws IllegalArgumentException if a new record is null */
     public Record editRecord(int recordIndex, Record newRecord) {
         if (recordIndex >= numberOfRecords)
             throw new IndexOutOfBoundsException("Record index cannot exceed the number of records.");
@@ -46,7 +96,8 @@ public class Notepad {
         return oldRecord;
     }
 
-    private boolean arrayIsFull() {
-        return records.length == numberOfRecords;
+    // Returns true, if the current storage is full of records.
+    private boolean storageIsFull() {
+        return records.length <= numberOfRecords;
     }
 }
