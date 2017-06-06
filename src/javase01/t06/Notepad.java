@@ -24,7 +24,7 @@ public class Notepad {
 
     /** Prints all records in the notepad to the standard output. */
     public void watchAllRecords() {
-        System.out.println("All records in the notepad:");
+        System.out.println("All records in the notepad (nulls are shown for the testing purpose):");
         for (Record rec : records) System.out.print(rec + "  ");
         System.out.println();
     }
@@ -35,7 +35,7 @@ public class Notepad {
         return records.length;
     }
 
-    /** Returns the number of records in the notepad */
+    /** Returns the number of records in the notepad. */
     public int getNumberOfRecords() {
         return numberOfRecords;
     }
@@ -63,17 +63,14 @@ public class Notepad {
         numberOfRecords--;
         if (DEFAULT_CAPACITY <= numberOfRecords && numberOfRecords <= records.length / 4) {
             // we'll reallocate data to a shorter array
-            System.out.print("***" + recordIndex + " ");
             Record[] destination = new Record[numberOfRecords * 2];
             System.arraycopy(records, 0, destination, 0, recordIndex);
             System.arraycopy(records, recordIndex + 1, destination, recordIndex, numberOfRecords - recordIndex);
             records = destination;
         } else if (recordIndex == numberOfRecords) {    // no reallocation; the last record was removed
-            System.out.print("**");
             records[numberOfRecords] = null;
         } else {
             // no reallocation, but we need to "put together" two parts of our array because of the removed record "in the middle"
-            System.out.print("*");
             System.arraycopy(records, recordIndex + 1, records, recordIndex, numberOfRecords - recordIndex);
             records[numberOfRecords] = null;
         }
